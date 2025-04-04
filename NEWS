@@ -1,3 +1,8 @@
+0.7
+~~~
+o Updated remaining Python 3 incompatibilites
+o Forked to internal use for Kinsta
+
 0.6
 ~~~
 o Clean up the terminal on exit

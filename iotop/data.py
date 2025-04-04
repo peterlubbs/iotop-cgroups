@@ -17,7 +17,7 @@
 # Copyright (c) 2007 Guillaume Chazarain <guichaz@gmail.com>
 
 # Allow printing with same syntax in Python 2/3
-from __future__ import print_function
+
 
 import errno
 import os
@@ -153,7 +153,7 @@ class TaskStatsNetlink(object):
                 # OSError: Netlink error: No such process (3)
                 return
             raise
-        for attr_type, attr_value in reply.attrs.items():
+        for attr_type, attr_value in list(reply.attrs.items()):
             if attr_type == TASKSTATS_TYPE_AGGR_PID:
                 reply = attr_value.nested()
                 break
@@ -337,19 +337,19 @@ class ProcessInfo(DumpableObject):
     def did_some_io(self, accumulated):
         if accumulated:
             return not self.stats_accum.is_all_zero()
-        for t in self.threads.values():
+        for t in list(self.threads.values()):
             if not t.stats_delta.is_all_zero():
                 return True
         return False
 
     def get_ioprio(self):
-        priorities = set(t.get_ioprio() for t in self.threads.values())
+        priorities = set(t.get_ioprio() for t in list(self.threads.values()))
         if len(priorities) == 1:
             return priorities.pop()
         return '?dif'
 
     def set_ioprio(self, ioprio_class, ioprio_data):
-        for thread in self.threads.values():
+        for thread in list(self.threads.values()):
             thread.set_ioprio(ioprio_class, ioprio_data)
 
     def ioprio_sort_key(self):
@@ -364,11 +364,11 @@ class ProcessInfo(DumpableObject):
 
     def update_stats(self):
         stats_delta = Stats.build_all_zero()
-        for tid, thread in self.threads.items():
+        for tid, thread in list(self.threads.items()):
             if not thread.mark:
                 stats_delta.accumulate(thread.stats_delta, stats_delta)
         self.threads = dict([(tid, thread) for tid, thread in
-                             self.threads.items() if not thread.mark])
+                             list(self.threads.items()) if not thread.mark])
 
         nr_threads = len(self.threads)
         if not nr_threads:
@@ -418,8 +418,8 @@ class ProcessList(DumpableObject):
         for tgid in tgids:
             if '0' <= tgid[0] <= '9':
                 try:
-                    tids.extend(map(int,
-                                    os.listdir('/proc/' + tgid + '/task')))
+                    tids.extend(list(map(int,
+                                    os.listdir('/proc/' + tgid + '/task'))))
                 except OSError:
                     # The PID went away
                     pass
@@ -462,14 +462,14 @@ class ProcessList(DumpableObject):
         return (total_read, total_write), self.vmstat.delta()
 
     def refresh_processes(self):
-        for process in self.processes.values():
-            for thread in process.threads.values():
+        for process in list(self.processes.values()):
+            for thread in list(process.threads.values()):
                 thread.mark = True
 
         total_read_and_write = self.update_process_counts()
 
         self.processes = dict([(pid, process) for pid, process in
-                               self.processes.items() if
+                               list(self.processes.items()) if
                                process.update_stats()])
 
         return total_read_and_write
