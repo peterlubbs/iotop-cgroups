@@ -106,7 +106,7 @@ def ioprio_data(ioprio):
 
 sched_getscheduler = ctypes_handle.sched_getscheduler
 SCHED_OTHER, SCHED_FIFO, SCHED_RR, SCHED_BATCH, SCHED_ISO, SCHED_IDLE = \
-    range(6)
+    list(range(6))
 
 getpriority = ctypes_handle.getpriority
 PRIO_PROCESS = 0
@@ -187,5 +187,5 @@ if __name__ == '__main__':
         pid = int(sys.argv[1])
     else:
         pid = os.getpid()
-    print('pid:', pid)
-    print('ioprio:', get(pid))
+    print(('pid:', pid))
+    print(('ioprio:', get(pid)))
